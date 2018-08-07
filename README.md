@@ -1,6 +1,6 @@
 # pdfxplr
 
-Extract hidden data from pdf.
+Extract hidden data from pdf files.
 
 ### Summary
 
