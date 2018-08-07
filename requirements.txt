@@ -1,0 +1,3 @@
+chardet
+pdfminer.six
+python-dateutil
