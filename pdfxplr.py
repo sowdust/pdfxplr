@@ -6,7 +6,6 @@ import rex
 import html
 import time
 import dumppdf
-import logging
 import argparse
 import chardet
 
