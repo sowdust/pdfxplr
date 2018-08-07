@@ -2,7 +2,10 @@
 
 Extract hidden data from pdf.
 
-These instructions will get you a copy of the project up and running on your local machine for development and testing purposes. See deployment for notes on how to deploy the project on a live system.
+### Summary
+
+This script attempts to extract potentially interesting data from pdf files, that might be useful in penetration tests, forensics analysis or OSINT investigations.
+Besides classic metadata, it looks for elements usually overlooked, such as the alternative text set for images, which by default in Microsoft Office documents is the full path of the image file.
 
 ### Prerequisites
 
