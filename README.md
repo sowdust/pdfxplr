@@ -2,8 +2,6 @@
 
 Extract hidden data from pdf.
 
-## Getting Started
-
 These instructions will get you a copy of the project up and running on your local machine for development and testing purposes. See deployment for notes on how to deploy the project on a live system.
 
 ### Prerequisites
@@ -46,7 +44,7 @@ optional arguments:
                         Output file path. Files will be overwritten.
 ```
 
-## Acknowledgments
+### Acknowledgments
 
 Thanks to Gianluca Baldi for the help with the first version of this project and to Maurizio Agazzini for having suggested using the images' alt text in pdf files.
 
