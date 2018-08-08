@@ -27,7 +27,7 @@ IP_REGEX = r"""[0-9]+(?:\.[0-9]+){3}:[0-9]+"""
 
 
 """
-My regex's
+My regexes
 """
 RE_WWW = re.compile(WEB_URL_REGEX, re.IGNORECASE)
 RE_URL = re.compile(ANY_URL_REGEX, re.IGNORECASE)

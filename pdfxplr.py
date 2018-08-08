@@ -41,12 +41,16 @@ def get_metadata(file):
             for k,v in i.items():
 
                 # let's get rid of strange encodings 
-                encoding = chardet.detect(v)
                 try:
-                    v = v.decode(encoding['encoding'])
+                	encoding = chardet.detect(v)
+                	v = v.decode(encoding['encoding'])
                 except Exception as ex:
-                    printout('[!] Error while decoding string')
-                    printout(ex)
+                	try:
+                		v = str(v)
+                	except Exception as exx:
+	                    printout('[!] Error while decoding string')
+	                    printout(ex)
+	                    printout(exx)
 
                 # let's get the dates
                 if k in ['ModDate','CreationDate']:
@@ -54,7 +58,6 @@ def get_metadata(file):
                     try:
                         v = time.strptime(v[2:].replace('\'',''),"%Y%m%d%H%M%S%z")
                     except Exception as ex:
-                        None
                         try:
                             v = dateparser.parse(v)
                         except Exception as exx:
