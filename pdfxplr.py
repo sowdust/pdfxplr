@@ -151,18 +151,18 @@ def main():
 
     global OUTFILE, VERBOSE
 
-    parser = argparse.ArgumentParser(description='Extract interesting data from pdf files.')
-    parser.add_argument('path', metavar='PATH', type=str, help='Path to a file or folder')
-    parser.add_argument('-m', '--metadata', action='store_true', help='Print metadata')
-    parser.add_argument('-e', '--email', action='store_true', help='Extract all email addresses')
-    parser.add_argument('-l', '--links', action='store_true', help='Extract all URLs')
-    parser.add_argument('-i', '--ips', action='store_true', help='Extract all IP addresses')
-    parser.add_argument('-p', '--paths', action='store_true', help='Extract paths and filenames from image alternative text field')
-    parser.add_argument('-u', '--usernames', action='store_true', help='')
-    parser.add_argument('-s', '--software', action='store_true', help='')
-    parser.add_argument('-a', '--all', action='store_true', help='Extract all - does not print metadata unless explicitly asked')
-    parser.add_argument('-v', '--verbose', action='store_true', help='Verbose mode')
-    parser.add_argument('-o', '--outfile', nargs='?', const='list', default=None, help='Output file path. Files will be overwritten.')
+    parser = argparse.ArgumentParser(description='extract interesting data from pdf files.')
+    parser.add_argument('path', metavar='PATH', type=str, help='path to a file or folder')
+    parser.add_argument('-m', '--metadata', action='store_true', help='print metadata - turned off by default')
+    parser.add_argument('-e', '--email', action='store_true', help='extract all email addresses')
+    parser.add_argument('-l', '--links', action='store_true', help='extract all URLs')
+    parser.add_argument('-i', '--ips', action='store_true', help='extract all IP addresses')
+    parser.add_argument('-p', '--paths', action='store_true', help='extract paths and filenames from image alternative text field')
+    parser.add_argument('-u', '--usernames', action='store_true', help='show all usernames identified')
+    parser.add_argument('-s', '--software', action='store_true', help='show all software components identified')
+    parser.add_argument('-a', '--all', action='store_true', help='extract all - does not print metadata unless explicitly asked')
+    parser.add_argument('-v', '--verbose', action='store_true', help='verbose mode')
+    parser.add_argument('-o', '--outfile', nargs='?', const='list', default=None, help='output file path')
 
     args = parser.parse_args(args=None if len(sys.argv) > 1 else ['--help'])
 

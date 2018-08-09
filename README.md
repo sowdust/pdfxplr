@@ -25,26 +25,26 @@ usage: pdfxplr.py [-h] [-m] [-e] [-l] [-i] [-p] [-u] [-s] [-a] [-v]
                   [-o [OUTFILE]]
                   PATH
 
-Extract interesting data from pdf files.
+extract interesting data from pdf files.
 
 positional arguments:
-  PATH                  Path to a file or folder
+  PATH                  path to a file or folder
 
 optional arguments:
   -h, --help            show this help message and exit
-  -m, --metadata        Print metadata
-  -e, --email           Extract all email addresses
-  -l, --links           Extract all URLs
-  -i, --ips             Extract all IP addresses
-  -p, --paths           Extract paths and filenames from image alternative
+  -m, --metadata        print metadata - turned off by default
+  -e, --email           extract all email addresses
+  -l, --links           extract all URLs
+  -i, --ips             extract all IP addresses
+  -p, --paths           extract paths and filenames from image alternative
                         text field
-  -u, --usernames
-  -s, --software
-  -a, --all             Extract all - does not print metadata unless
+  -u, --usernames       show all usernames identified
+  -s, --software        show all software components identified
+  -a, --all             extract all - does not print metadata unless
                         explicitly asked
-  -v, --verbose         Verbose mode
+  -v, --verbose         verbose mode
   -o [OUTFILE], --outfile [OUTFILE]
-                        Output file path. Files will be overwritten.
+                        output file path
 ```
 
 ### Acknowledgments
