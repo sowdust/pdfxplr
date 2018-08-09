@@ -128,7 +128,9 @@ def get_users_sw_from_meta(metadata):
         if 'author' in k.lower():
             users.append(v)
         elif 'creator' in k.lower():
-            sw.append(v)
+        	sw.append(v)
+        elif 'producer' in k.lower():
+        	sw.append(v)
 
     return [users,sw]
 
@@ -209,7 +211,7 @@ def main():
             ips |= set(retrieve_all(decoded,rex.RE_IP))
         if extract_paths:
             paths |= set(paths_in_tooltips(decoded.splitlines()))
-        if args.usernames:
+        if args.usernames or args.software:
             [u,s] = get_users_sw_from_meta(metadata)
             usernames |= set(u)
             softwares |= set(s)
