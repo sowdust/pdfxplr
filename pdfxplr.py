@@ -56,7 +56,7 @@ def extract_images(doc, store_path, filename):
 
         except Exception as ex:
             printout('[!] Impossible to process page %d' % p, False)
-            printout(ex)
+            printout(ex,False)
 
     return res
 
@@ -126,7 +126,7 @@ def get_metadata(doc):
                 metadata['catalog:ModifyDate'] = old_dict['xap']['ModifyDate']
             except Exception as ex:
                 printout('[!] Error while parsing old metadata format')
-                printout(ex)
+                printout(ex,False)
         # get metadata from "info" list of dicts
         for i in doc.info:
             for k,v in i.items():
@@ -144,8 +144,8 @@ def get_metadata(doc):
                             v = dateparser.parse(v)
                         except Exception as exx:
                             printout('[!] Error while parsing date')
-                            printout(ex)
-                            printout(exx)
+                            printout(ex,False)
+                            printout(exx,False)
                             v = '%s [RAW]' % v
                 # let's consider cases in which there is more than one "info" block
                 c = 0
@@ -155,7 +155,7 @@ def get_metadata(doc):
                 metadata[k] = v
     except Exception as ex:
         printout('[!] Error while retrieving metadata')
-        printout(ex)
+        printout(ex,False)
 
     return metadata
 
@@ -210,14 +210,17 @@ def printout(message='', always=True):
             print(message)
 
 
-def print_metadata(filename,metadata):
+def print_metadata(metadata):
 
-    printout('%s: %s' % ('File'.ljust(20),filename),True)
-    for k,v in metadata.items():
-        if isinstance(v, time.struct_time):
-            v = time.strftime("%a, %d %b %Y %H:%M:%S +0000", v)
-        printout('%s: %s' % (k.ljust(20),v),True)
-    printout('',True)
+    for f in metadata:
+        printout('%s: %s' % ('* Metadata for PDF'.ljust(20),f['_filename']))
+        for k,v in f.items():
+            if k != '_filename':
+                if isinstance(v, time.struct_time):
+                    v = time.strftime("%a, %d %b %Y %H:%M:%S +0000", v)
+                printout(' %s: %s' % (k.ljust(19),v),True)
+        printout('',True)    
+
 
 
 def print_image_metadata(meta):
@@ -225,10 +228,10 @@ def print_image_metadata(meta):
     for i in meta:
         for m in i:
             if len(m) > 1:
-
-                printout('[Metadata for image %s]' % m['local_file'])
+                printout('%s: %s' % ('* Metadata for img'.ljust(20),m['local_file']))
                 for k in m.keys():
-                    if k != 'local_file': printout('\t%s: %s' % (k.ljust(20), m[k]))
+                    if k != 'local_file':
+                        printout(' %s: %s' % (k.ljust(19), m[k]))
                 printout('')
 
 
@@ -325,11 +328,17 @@ def main():
         printout('[!] Error. Switch --images is necessary for --store-images')
         sys.exit(0)
 
+    if args.store_images and not os.path.isdir(args.store_images):
+        printout('[!] Error. Not a valid path to store images: %s' % args.store_images)
+        sys.exit(0)
+
     if args.encoding:
         ENCODING = args.encoding
 
     if args.all:
         args.email = args.links = args.ips = args.paths = args.usernames = args.software = args.images = True
+
+    summary = args.email or args.links or args.ips or args.paths or args.usernames or args.software
 
     if args.outfile:
         OUTFILE = args.outfile
@@ -374,13 +383,13 @@ def main():
 
             try:
 
-                printout('[*] Processing file %s...' % f, True)
+                printout('* Processing file %s...' % f, True)
                 printout('',True)
                 parser = PDFParser(fp)
                 doc = PDFDocument(parser)
                 metadata = get_metadata(doc)
-                if args.metadata:
-                    print_metadata(f,metadata)
+                metadata['_filename'] = f
+                pdf_metadata.append(metadata)
                 if args.email or args.links or args.ips or args.paths or args.usernames or args.software:
                     xml = get_xml(f)
                     decoded = html.unescape(xml)
@@ -416,62 +425,74 @@ def main():
     usernames |= set(u_mac)
     usernames |= set(u_windows)
 
-    if args.images and args.metadata:
-        printout('[*] IMAGE METADATA')
+
+    if args.metadata and args.images:
+        printout('%s %s %s' % ('.' * 31, 'image metadata', '.' * 31))
         printout()
         print_image_metadata(img_metadata)
 
+
+    if args.metadata:
+        printout('%s %s %s' % ('.' * 32, 'PDF metadata', '.' * 32))
+        printout()
+        print_metadata(pdf_metadata)
+
+    if summary:
+        printout('.' * 78)
+        printout()
+
     if args.usernames:
-        printout('[*] USERNAMES FOUND: %d' % len(usernames))
+        printout('%s: %s' % ('* Usernames found'.ljust(20),len(usernames)))
         for e in usernames:
-            printout('\t%s' % e)
+            printout('%s: %s' % (''.ljust(20), e))
         printout()
     if args.paths:
-        printout('[*] PATHS FOUND: %d' % len(paths))
+        printout('%s: %s' % ('* Paths found'.ljust(20),len(links)))
         for e in paths:
-            printout('\t%s' % e)
+            printout('%s: %s' % (''.ljust(20), e))
         printout()
     if args.ips:
-        printout('[*] IPS FOUND: %d' % len(ips))
+        printout('%s: %s' % ('* IPs found'.ljust(20),len(ips)))
         for e in ips:
-            printout('\t%s' % e)
+            printout('%s: %s' % (''.ljust(20), e))
         printout()
     if args.email:
-        printout('[*] EMAILS FOUND: %d' % len(emails))
+        printout('%s: %s' % ('* Emails found'.ljust(20),len(emails)))
         for e in emails:
-            printout('\t%s' % e)
+            printout('%s: %s' % (''.ljust(20), e))
         printout()
     if args.links:
-        printout('[*] LINKS FOUND: %d' % len(links))
+        printout('%s: %s' % ('* Links found'.ljust(20),len(links)))
         for e in links:
-            printout('\t%s' % e)
+            printout('%s: %s' % (''.ljust(20), e))
         printout()
     if args.software:
-        printout('[*] SOFTWARE FOUND: %d' % len(softwares))
+        printout('%s: %s' % ('* Software found'.ljust(20),len(softwares)))
         for e in softwares:
-            printout('\t%s' % e)
+            printout('%s: %s' % (''.ljust(20), e))
         printout()
     if args.images:
         if img_users and args.usernames:
-            printout('[*] USERS FOUND IN IMAGES: %s' % len(img_users))
+            printout('%s: %s' % ('* Users in images'.ljust(20),len(img_users)))
             for e in img_users:
-                printout('\t%s' % e)
+                printout('%s: %s' % (''.ljust(20), e))
             printout()
         if img_software and args.software:
-            printout('[*] SOFTWARE FOUND IN IMAGES: %s' % len(img_software))
+            printout('%s: %s' % ('* Software in images'.ljust(20),len(img_software)))
             for e in img_software:
-                printout('\t%s' % e)
+                printout('%s: %s' % (''.ljust(20), e))
             printout()
         if img_locations:
-            printout('[*] LOCATIONS FOUND IN IMAGES: %s' % len(img_locations))
+            printout('%s: %s' % ('* GPS Locations'.ljust(20),len(img_locations)))
             for e in img_locations:
-                printout('\t%s' % e)
+                printout('%s: %s' % (''.ljust(20), e))
             printout()
         if img_serials:
-            printout('[*] SERIALS FOUND IN IMAGES: %s' % len(img_serials))
+            printout('%s: %s' % ('* Serial # in images'.ljust(20),len(img_serials)))
             for e in img_serials:
-                printout('\t%s' % e)
+                printout('%s: %s' % (''.ljust(20), e))
             printout()
+
 
 
 if __name__ == '__main__':

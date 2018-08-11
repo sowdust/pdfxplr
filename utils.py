@@ -64,8 +64,8 @@ def try_parse_string(v,encoding=None):
             v = str(v)
         except Exception as exx:
             printout('[!] Error while decoding string')
-            printout(ex)
-            printout(exx)
+            printout(ex,False)
+            printout(exx,False)
 
     # we can try to detect encoding from the xml 
 
