@@ -61,4 +61,7 @@ optional arguments:
 ### Acknowledgments
 
 Thanks to Gianluca Baldi for the help with the first version of this project and to Maurizio Agazzini for having suggested using the images' alt text in pdf files.
+The XMP metadata parser is by Matt Swain (http://blog.matt-swain.com/post/25650072381/a-lightweight-xmp-parser-for-extracting-pdf).
+Some regexes are from John Gruber (http://daringfireball.net/2010/07/improved_regex_for_matching_urls).
+Dumppdf is a slightly modified version from the original tool shipped with pdfminer (https://github.com/pdfminer/pdfminer.six/blob/master/tools/dumppdf.py)
 
