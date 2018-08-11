@@ -26,8 +26,9 @@ The list of exif metadata that will be extracted is set in utils.py, as well as 
 ### Usage
 
 ```
-usage: pdfxplr.py [-h] [-c encoding] [-m] [-e] [-l] [-i] [-p] [-u] [-s] [-x]
-                  [-a] [-v] [-o [OUTFILE]] [--store-images [STORE_IMAGES]]
+usage: pdfxplr.py [-h] [-m] [-a] [-e] [-l] [-i] [-p] [-u] [-s] [-x] [-v]
+                  [-o outfile] [--encoding encoding]
+                  [--store-images store_images]
                   PATH
 
 extract interesting data from pdf files.
@@ -37,25 +38,21 @@ positional arguments:
 
 optional arguments:
   -h, --help            show this help message and exit
-  -c encoding, --encoding encoding
-                        encoding used by the document
-  -m, --metadata        print metadata - turned off by default
-  -e, --email           extract all email addresses
-  -l, --links           extract all URLs
-  -i, --ips             extract all IP addresses
-  -p, --paths           extract paths and filenames from image alternative
-                        text field
-  -u, --usernames       show all usernames identified
-  -s, --software        show all software components identified
-  -x, --images          extract information from embedded - use with -m to
-                        list image metadata
-  -a, --all             extract all - does not print metadata without -m
-                        switch
+  -m, --metadata        show metadata, off by default
+  -a, --all             show all, use -m to show metadata
+  -e, --email           list all email addresses
+  -l, --links           list all URLs
+  -i, --ips             list all IP addresses
+  -p, --paths           list all paths found in image alt fields
+  -u, --usernames       list all usernames
+  -s, --software        list all software components identified
+  -x, --images          extract info from images, use -m to show metadata
   -v, --verbose         verbose mode
-  -o [OUTFILE], --outfile [OUTFILE]
+  -o outfile, --outfile outfile
                         output file path
-  --store-images [STORE_IMAGES]
-                        path where to store extracted images
+  --encoding encoding   input document encoding
+  --store-images store_images
+                        path to store extracted images (optional)
 ```
 
 ### Acknowledgments
