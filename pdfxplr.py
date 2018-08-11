@@ -21,9 +21,10 @@ from pdfminer.converter import PDFPageAggregator
 from pdfminer.layout import LAParams, LTTextBox, LTTextLine, LTFigure, LTImage, LTChar
 from pdfminer.pdftypes  import PDFObjRef, resolve1
 
-LOCATIONS = [] # TODO: dont use a global variable
+
 VERBOSE = False
-OUTFILE = None
+# global vars?
+OUTFILE = None 
 ENCODING = None
 
 
@@ -65,7 +66,7 @@ def extract_image_metadata(lt_image, store_path, page_number, filename):
 
     metadata = {}
     image_name = ''.join([filename, '_', str(page_number), '_', lt_image.name])
-    metadata['local_file'] = image_name
+    metadata['_local_file'] = image_name
 
     if lt_image.stream:
         try:
@@ -228,9 +229,9 @@ def print_image_metadata(meta):
     for i in meta:
         for m in i:
             if len(m) > 1:
-                printout('%s: %s' % ('* Metadata for img'.ljust(20),m['local_file']))
+                printout('%s: %s' % ('* Metadata for img'.ljust(20),m['_local_file']))
                 for k in m.keys():
-                    if k != 'local_file':
+                    if k != '_local_file':
                         printout(' %s: %s' % (k.ljust(19), m[k]))
                 printout('')
 
