@@ -1,3 +1,4 @@
 chardet
 pdfminer.six
 python-dateutil
+Pillow
