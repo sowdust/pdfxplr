@@ -45,6 +45,64 @@ by sowdust
 # - understand why some gps are stripped and some are not (ie only gpsVersionID is there) 
 # - read GPSVersionID as bytes
 
+
+
+def get_metadata(doc):
+
+    metadata = {}
+
+    try:
+
+        # get language info from "catalog" dictionary
+        if 'Lang' in doc.catalog.keys(): 
+            metadata['Lang'] = doc.catalog['Lang'].decode('utf-8')
+        # if metadata is in the catalog 
+        if 'Metadata' in doc.catalog:
+            old_meta = resolve1(doc.catalog['Metadata']).get_data()
+            #print(metadata)  # The raw XMP metadata
+            old_dict = (xmpparser.xmp_to_dict(old_meta))
+            try: # TODO: improve this piece
+                metadata['catalog:Producer'] = old_dict['pdf']['Producer']
+                metadata['catalog:creator'] = old_dict['dc']['creator']
+                metadata['catalog:CreatorTool'] = old_dict['xap']['CreatorTool']
+                metadata['catalog:CreateDate'] = old_dict['xap']['CreateDate']
+                metadata['catalog:ModifyDate'] = old_dict['xap']['ModifyDate']
+            except Exception as ex:
+                printout('[!] Error while parsing old metadata format')
+                printout(ex,False)
+        # get metadata from "info" list of dicts
+        for i in doc.info:
+            for k,v in i.items():
+
+                # let's get rid of strange encodings 
+                v = try_parse_string(v,ENCODING)
+
+                # let's get the dates
+                if k in ['ModDate','CreationDate']:
+                    # compute date (http://www.verypdf.com/pdfinfoeditor/pdf-date-format.htm)  
+                    try:
+                        v = time.strptime(v[2:].replace('\'',''),"%Y%m%d%H%M%S%z")
+                    except Exception as ex:
+                        try:
+                            v = dateparser.parse(v)
+                        except Exception as exx:
+                            printout('[!] Error while parsing date')
+                            printout(ex,False)
+                            printout(exx,False)
+                            v = '%s [RAW]' % v
+                # let's consider cases in which there is more than one "info" block
+                c = 0
+                while k in metadata.keys():
+                    c = c + 1
+                    k = '%s-%d' % (k,c)
+                metadata[k] = v
+    except Exception as ex:
+        printout('[!] Error while retrieving metadata')
+        printout(ex,False)
+
+    return metadata
+
+
 def extract_images(doc, store_path, filename):
 
     rsrcmgr = PDFResourceManager()
@@ -118,62 +176,6 @@ def extract_image_metadata(lt_image, store_path, page_number, filename):
     return metadata
 
 
-def get_metadata(doc):
-
-    metadata = {}
-
-    try:
-
-        # get language info from "catalog" dictionary
-        if 'Lang' in doc.catalog.keys(): 
-            metadata['Lang'] = doc.catalog['Lang'].decode('utf-8')
-        # if metadata is in the catalog 
-        if 'Metadata' in doc.catalog:
-            old_meta = resolve1(doc.catalog['Metadata']).get_data()
-            #print(metadata)  # The raw XMP metadata
-            old_dict = (xmpparser.xmp_to_dict(old_meta))
-            try:
-                metadata['catalog:Producer'] = old_dict['pdf']['Producer']
-                metadata['catalog:creator'] = old_dict['dc']['creator']
-                metadata['catalog:CreatorTool'] = old_dict['xap']['CreatorTool']
-                metadata['catalog:CreateDate'] = old_dict['xap']['CreateDate']
-                metadata['catalog:ModifyDate'] = old_dict['xap']['ModifyDate']
-            except Exception as ex:
-                printout('[!] Error while parsing old metadata format')
-                printout(ex,False)
-        # get metadata from "info" list of dicts
-        for i in doc.info:
-            for k,v in i.items():
-
-                # let's get rid of strange encodings 
-                v = try_parse_string(v,ENCODING)
-
-                # let's get the dates
-                if k in ['ModDate','CreationDate']:
-                    # compute date (http://www.verypdf.com/pdfinfoeditor/pdf-date-format.htm)  
-                    try:
-                        v = time.strptime(v[2:].replace('\'',''),"%Y%m%d%H%M%S%z")
-                    except Exception as ex:
-                        try:
-                            v = dateparser.parse(v)
-                        except Exception as exx:
-                            printout('[!] Error while parsing date')
-                            printout(ex,False)
-                            printout(exx,False)
-                            v = '%s [RAW]' % v
-                # let's consider cases in which there is more than one "info" block
-                c = 0
-                while k in metadata.keys():
-                    c = c + 1
-                    k = '%s-%d' % (k,c)
-                metadata[k] = v
-    except Exception as ex:
-        printout('[!] Error while retrieving metadata')
-        printout(ex,False)
-
-    return metadata
-
-
 def get_xml(file):
 
     io = StringIO()
@@ -214,41 +216,6 @@ def paths_in_tooltips(xml):
     return paths
 
 
-def printout(message='', always=True):
-    
-    if VERBOSE or always:
-        if OUTFILE:
-            with io.open(OUTFILE, 'a',encoding='utf-16') as f:
-                print(message,file=f)
-        if not OUTFILE or VERBOSE:
-            print(message)
-
-
-def print_metadata(metadata):
-
-    for f in metadata:
-        if not(f): continue
-        printout('%s: %s' % ('* Metadata for PDF'.ljust(20),f['_filename']))
-        for k,v in f.items():
-            if k != '_filename':
-                if isinstance(v, time.struct_time):
-                    v = time.strftime("%a, %d %b %Y %H:%M:%S +0000", v)
-                printout('  %s: %s' % (k.ljust(18),v),True)
-        printout('',True)    
-
-
-def print_image_metadata(meta):
-
-    for i in meta:
-        for m in i:
-            if len(m) > 1:
-                printout('%s: %s' % ('* Metadata for img'.ljust(20),m['_local_file']))
-                for k in m.keys():
-                    if k != '_local_file':
-                        printout('  %s: %s' % (k.ljust(18), m[k]))
-                printout('')
-
-
 def get_users_sw_from_img_meta(metadata):
 
     users = []
@@ -279,7 +246,6 @@ def get_users_sw_from_img_meta(metadata):
             serials.append(m['CameraSerialNumber'])
         if '_Location' in m.keys():
             locations.append(m['_Location'])
-
 
     return [users,sw,serials,locations]    
 
@@ -314,6 +280,41 @@ def get_info_from_paths(paths):
         u_linux += re.findall(rex.RE_USERNAME_LINUX, p)
 
     return [u_linux,u_mac,u_windows]
+
+
+def printout(message='', always=True):
+    
+    if VERBOSE or always:
+        if OUTFILE:
+            with io.open(OUTFILE, 'a',encoding='utf-16') as f:
+                print(message,file=f)
+        if not OUTFILE or VERBOSE:
+            print(message)
+
+
+def print_metadata(metadata):
+
+    for f in metadata:
+        if not(f): continue
+        printout('%s: %s' % ('* Metadata for PDF'.ljust(20),f['_filename']))
+        for k,v in f.items():
+            if k != '_filename':
+                if isinstance(v, time.struct_time):
+                    v = time.strftime("%a, %d %b %Y %H:%M:%S +0000", v)
+                printout('  %s: %s' % (k.ljust(18),v),True)
+        printout('',True)    
+
+
+def print_image_metadata(meta):
+
+    for i in meta:
+        for m in i:
+            if len(m) > 1:
+                printout('%s: %s' % ('* Metadata for img'.ljust(20),m['_local_file']))
+                for k in m.keys():
+                    if k != '_local_file':
+                        printout('  %s: %s' % (k.ljust(18), m[k]))
+                printout('')
 
 
 def print_results(title,res):
