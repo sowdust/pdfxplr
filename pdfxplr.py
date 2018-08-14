@@ -26,11 +26,24 @@ VERBOSE = False
 # global vars?
 OUTFILE = None 
 ENCODING = None
+LINEWIDTH = 78
 
+VERSION = "0.1"
+BANNER = """
+pdfxplr.py v. {0} - Find hidden data in pdf
+by sowdust
+""".format(VERSION)
 
 # TODO
 # - fix pdfminer issue with some documents' metadata (mayb mac?)
 # - fix encoding errors
+# - better output management
+# - multithreaded
+# - allow a list of files as input
+# - add samples
+# - add examples in readme
+# - understand why some gps are stripped and some are not (ie only gpsVersionID is there) 
+# - read GPSVersionID as bytes
 
 def extract_images(doc, store_path, filename):
 
@@ -214,14 +227,14 @@ def printout(message='', always=True):
 def print_metadata(metadata):
 
     for f in metadata:
+        if not(f): continue
         printout('%s: %s' % ('* Metadata for PDF'.ljust(20),f['_filename']))
         for k,v in f.items():
             if k != '_filename':
                 if isinstance(v, time.struct_time):
                     v = time.strftime("%a, %d %b %Y %H:%M:%S +0000", v)
-                printout(' %s: %s' % (k.ljust(19),v),True)
+                printout('  %s: %s' % (k.ljust(18),v),True)
         printout('',True)    
-
 
 
 def print_image_metadata(meta):
@@ -232,7 +245,7 @@ def print_image_metadata(meta):
                 printout('%s: %s' % ('* Metadata for img'.ljust(20),m['_local_file']))
                 for k in m.keys():
                     if k != '_local_file':
-                        printout(' %s: %s' % (k.ljust(19), m[k]))
+                        printout('  %s: %s' % (k.ljust(18), m[k]))
                 printout('')
 
 
@@ -303,9 +316,16 @@ def get_info_from_paths(paths):
     return [u_linux,u_mac,u_windows]
 
 
-def main():
+def print_results(title,res):
+    printout('%s: %s' % (title.ljust(20),len(res)))
+    for r in res:
+        printout('%s: %s' % (''.ljust(20), r))
+    printout()
 
-    global OUTFILE, VERBOSE, ENCODING
+
+def parse_args():
+
+    global ENCODING, OUTFILE, VERBOSE
 
     parser = argparse.ArgumentParser(description='extract interesting data from pdf files.')
     parser.add_argument('path', metavar='PATH', type=str, help='path to a file or folder')
@@ -319,13 +339,9 @@ def main():
     parser.add_argument('-s', '--software', action='store_true', help='list all software components identified')
     parser.add_argument('-x', '--images', action='store_true', help='extract info from images, use -m to show metadata')
     parser.add_argument('-v', '--verbose', action='store_true', help='verbose mode')
-    #parser.add_argument('-o', '--outfile', nargs='?', const='list', default=None, help='output file path')
-    #parser.add_argument('--store-images', nargs='?', const='list', default=None, help='path to store extracted images (optional)')
     parser.add_argument('-o','--outfile', metavar='outfile', type=str, help='output file path')
     parser.add_argument('--encoding', metavar='encoding', type=str, help='input document encoding')
     parser.add_argument('--store-images', metavar='store_images', type=str, help='path to store extracted images (optional)')
-
-#    parser.add_argument('--encoding', nargs='?', const='list', default=None, help='input document encoding')
 
     args = parser.parse_args(args=None if len(sys.argv) > 1 else ['--help'])
 
@@ -343,19 +359,32 @@ def main():
     if args.all:
         args.email = args.links = args.ips = args.paths = args.usernames = args.software = args.images = True
 
-    summary = args.email or args.links or args.ips or args.paths or args.usernames or args.software
+    args.summary = args.email or args.links or args.ips or args.paths or args.usernames or args.software
 
     if args.outfile:
         OUTFILE = args.outfile
 
     VERBOSE = args.verbose
 
-    extract_paths = args.paths
+    args.extract_paths = args.paths
 
     # some options depend on other information being extracted
     if args.usernames:
-        extract_paths = True
+        args.extract_paths = True
 
+    return args
+
+
+
+def main():
+
+    global OUTFILE, VERBOSE, ENCODING
+
+    printout(BANNER)
+
+    args = parse_args()
+
+    
     links = set()
     emails = set()
     usernames = set()
@@ -383,6 +412,7 @@ def main():
         printout('[!] Error: provided path %s is not a valid file or folder' % args.path)
         sys.exit(-1)
 
+    # extract data from all files
     for f in files:
         with open(f, 'rb') as fp:
 
@@ -404,7 +434,7 @@ def main():
                     links |= set(retrieve_all(decoded,rex.RE_WWW))
                 if args.ips:
                     ips |= set(retrieve_all(decoded,rex.RE_IP))
-                if extract_paths:
+                if args.extract_paths:
                     paths |= set(paths_in_tooltips(decoded.splitlines()))
                 if args.usernames or args.software:
                     [u,s] = get_users_sw_from_meta(metadata)
@@ -423,82 +453,38 @@ def main():
                 printout()
                 printout(ex,False)
 
-
     # now we also retrieve info from the paths structure found
     [u_linux,u_mac,u_windows]  = get_info_from_paths(paths)
     usernames |= set(u_linux)
     usernames |= set(u_mac)
     usernames |= set(u_windows)
 
-
+    # if images were extracted and metadata to be shown, first show img metadata
     if args.metadata and args.images:
         printout('%s %s %s' % ('.' * 31, 'image metadata', '.' * 31))
         printout()
         print_image_metadata(img_metadata)
-
-
+    # show pdf metadata
     if args.metadata:
         printout('%s %s %s' % ('.' * 32, 'PDF metadata', '.' * 32))
         printout()
         print_metadata(pdf_metadata)
 
-    if summary:
-        printout('.' * 78)
-        printout()
-
-    if args.usernames:
-        printout('%s: %s' % ('* Usernames found'.ljust(20),len(usernames)))
-        for e in usernames:
-            printout('%s: %s' % (''.ljust(20), e))
-        printout()
-    if args.paths:
-        printout('%s: %s' % ('* Paths found'.ljust(20),len(links)))
-        for e in paths:
-            printout('%s: %s' % (''.ljust(20), e))
-        printout()
-    if args.ips:
-        printout('%s: %s' % ('* IPs found'.ljust(20),len(ips)))
-        for e in ips:
-            printout('%s: %s' % (''.ljust(20), e))
-        printout()
-    if args.email:
-        printout('%s: %s' % ('* Emails found'.ljust(20),len(emails)))
-        for e in emails:
-            printout('%s: %s' % (''.ljust(20), e))
-        printout()
-    if args.links:
-        printout('%s: %s' % ('* Links found'.ljust(20),len(links)))
-        for e in links:
-            printout('%s: %s' % (''.ljust(20), e))
-        printout()
-    if args.software:
-        printout('%s: %s' % ('* Software found'.ljust(20),len(softwares)))
-        for e in softwares:
-            printout('%s: %s' % (''.ljust(20), e))
-        printout()
+    # print the summary of results
+    if args.summary: printout('.' * 78 + '\n')
+    if args.usernames: print_results('* Usernames found',usernames)
+    if args.paths: print_results('* Paths found',paths)
+    if args.ips: print_results('* IPs found',ips)
+    if args.email: print_results('* Emails found',emails)
+    if args.links: print_results('* Links found',links)
+    if args.software: print_results('* Software found',softwares)
     if args.images:
-        if img_users and args.usernames:
-            printout('%s: %s' % ('* Users in images'.ljust(20),len(img_users)))
-            for e in img_users:
-                printout('%s: %s' % (''.ljust(20), e))
-            printout()
-        if img_software and args.software:
-            printout('%s: %s' % ('* Software in images'.ljust(20),len(img_software)))
-            for e in img_software:
-                printout('%s: %s' % (''.ljust(20), e))
-            printout()
-        if img_locations:
-            printout('%s: %s' % ('* GPS Locations'.ljust(20),len(img_locations)))
-            for e in img_locations:
-                printout('%s: %s' % (''.ljust(20), e))
-            printout()
-        if img_serials:
-            printout('%s: %s' % ('* Serial # in images'.ljust(20),len(img_serials)))
-            for e in img_serials:
-                printout('%s: %s' % (''.ljust(20), e))
-            printout()
-
+        if img_users and args.usernames: print_results('* Users in images',img_users)
+        if img_software and args.software: print_results('* Software in images',img_software)
+        if img_locations: print_results('* GPS Locations', img_locations)
+        if img_serials: print_results('* Serial # in images', img_serials)
 
 
 if __name__ == '__main__':
     main()
+
