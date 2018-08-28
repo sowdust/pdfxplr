@@ -342,7 +342,7 @@ def parse_args():
     parser.add_argument('-v', '--verbose', action='store_true', help='verbose mode')
     parser.add_argument('-o','--outfile', metavar='outfile', type=str, help='output file path')
     parser.add_argument('--encoding', metavar='encoding', type=str, help='input document encoding')
-    parser.add_argument('--store-images', metavar='store_images', type=str, help='path to store extracted images (optional)')
+    parser.add_argument('--store-images', metavar='path', type=str, help='path to store extracted images (optional)')
 
     args = parser.parse_args(args=None if len(sys.argv) > 1 else ['--help'])
 

@@ -27,8 +27,7 @@ The list of exif metadata that will be extracted is set in utils.py, as well as 
 
 ```
 usage: pdfxplr.py [-h] [-m] [-a] [-e] [-l] [-i] [-p] [-u] [-s] [-x] [-v]
-                  [-o outfile] [--encoding encoding]
-                  [--store-images store_images]
+                  [-o outfile] [--encoding encoding] [--store-images path]
                   PATH
 
 extract interesting data from pdf files.
@@ -51,8 +50,7 @@ optional arguments:
   -o outfile, --outfile outfile
                         output file path
   --encoding encoding   input document encoding
-  --store-images store_images
-                        path to store extracted images (optional)
+  --store-images path   path to store extracted images (optional)
 ```
 
 ### Acknowledgments
