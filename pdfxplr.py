@@ -35,13 +35,10 @@ by sowdust
 """.format(VERSION)
 
 # TODO
-# - fix pdfminer issue with some documents' metadata (mayb mac?)
 # - fix encoding errors
-# - better output management
-# - multithreaded
+# - multithreaded ? 
 # - allow a list of files as input
 # - add samples
-# - add examples in readme
 # - understand why some gps are stripped and some are not (ie only gpsVersionID is there) 
 # - read GPSVersionID as bytes
 
@@ -74,22 +71,17 @@ def get_metadata(doc):
         for i in doc.info:
             for k,v in i.items():
 
+                # resolving issue https://github.com/pdfminer/pdfminer.six/issues/172#issuecomment-419657617
+                if isinstance(v, PDFObjRef):
+                    v = resolve1(v)
+
                 # let's get rid of strange encodings 
                 v = try_parse_string(v,ENCODING)
 
                 # let's get the dates
                 if k in ['ModDate','CreationDate']:
-                    # compute date (http://www.verypdf.com/pdfinfoeditor/pdf-date-format.htm)  
-                    try:
-                        v = time.strptime(v[2:].replace('\'',''),"%Y%m%d%H%M%S%z")
-                    except Exception as ex:
-                        try:
-                            v = dateparser.parse(v)
-                        except Exception as exx:
-                            printout('[!] Error while parsing date')
-                            printout(ex,False)
-                            printout(exx,False)
-                            v = '%s [RAW]' % v
+                    v = try_parse_date(v,ENCODING)
+
                 # let's consider cases in which there is more than one "info" block
                 c = 0
                 while k in metadata.keys():
@@ -101,6 +93,8 @@ def get_metadata(doc):
         printout(ex,False)
 
     return metadata
+
+
 
 
 def extract_images(doc, store_path, filename):

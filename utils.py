@@ -41,6 +41,20 @@ IMAGE_METADATA = [
     'UserComment',
 ]
 
+def try_parse_date(v,encoding=None):
+    try:
+        v = time.strptime(v[2:].replace('\'',''),"%Y%m%d%H%M%S%z")
+    except Exception as ex:
+        try:
+            v = dateparser.parse(v)
+        except Exception as exx:
+            printout('[!] Error while parsing date',False)
+            printout(ex,False)
+            printout(exx,False)
+            v = '%s [RAW]' % v
+    return v
+
+
 def try_parse_string(v,encoding=None):
 
     global ENCODINGS
