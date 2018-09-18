@@ -58,15 +58,19 @@ def get_metadata(doc):
             old_meta = resolve1(doc.catalog['Metadata']).get_data()
             #print(metadata)  # The raw XMP metadata
             old_dict = (xmpparser.xmp_to_dict(old_meta))
-            try: # TODO: improve this piece
-                metadata['catalog:Producer'] = old_dict['pdf']['Producer']
-                metadata['catalog:creator'] = old_dict['dc']['creator']
-                metadata['catalog:CreatorTool'] = old_dict['xap']['CreatorTool']
-                metadata['catalog:CreateDate'] = old_dict['xap']['CreateDate']
-                metadata['catalog:ModifyDate'] = old_dict['xap']['ModifyDate']
-            except Exception as ex:
-                printout('[!] Error while parsing old metadata format')
-                printout(ex,False)
+
+            # TODO: improve this piece
+            try: metadata['catalog:Producer'] = old_dict['pdf']['Producer']
+            except: pass
+            try: metadata['catalog:creator'] = old_dict['dc']['creator']
+            except: pass
+            try: metadata['catalog:CreatorTool'] = old_dict['xap']['CreatorTool']
+            except: pass
+            try: metadata['catalog:CreateDate'] = old_dict['xap']['CreateDate']
+            except: pass
+            try:    metadata['catalog:ModifyDate'] = old_dict['xap']['ModifyDate']
+            except: pass
+            
         # get metadata from "info" list of dicts
         for i in doc.info:
             for k,v in i.items():
@@ -128,6 +132,50 @@ def extract_images(doc, store_path, filename):
 
 
 def extract_image_metadata(lt_image, store_path, page_number, filename):
+
+    metadata = {}
+    image_name = ''.join([filename, '_', str(page_number), '_', lt_image.name])
+    metadata['_local_file'] = image_name
+
+    if lt_image.stream:
+        try:
+
+            file_stream = lt_image.stream.get_rawdata()
+            image = io.BytesIO(file_stream)
+            img = Image.open(image)        
+            for (tag,value) in img._getexif().items():
+
+                tag_name = TAGS.get(tag)
+
+                if tag_name == 'GPSInfo':
+                    gps_info = {}
+                    for g in value:
+                        gps_tag_name = GPSTAGS.get(g, g)
+                        gps_info[gps_tag_name] = value[g]
+                    metadata = dict(metadata, **gps_info)
+                    # if we can compute a location
+                    location = human_gps_info(gps_info)                    
+                    metadata['_Location'] = location
+
+                elif tag_name in IMAGE_METADATA:
+                    printout('Found tag %s' % tag_name,False)
+                    metadata[tag_name] = try_parse_string(value, ENCODING)
+
+        except Exception as ex:
+            printout(ex,False)
+
+        # if we need to store the image
+        if file_stream and store_path:
+
+            file_ext = determine_image_type(file_stream[0:4])
+            file_name = '%s%s' % (image_name,file_ext)
+            if file_ext: write_file(store_path, file_name, file_stream, flags='wb')
+
+    return metadata
+
+
+
+def extract_image_metadata2(lt_image, store_path, page_number, filename):
 
     metadata = {}
     image_name = ''.join([filename, '_', str(page_number), '_', lt_image.name])

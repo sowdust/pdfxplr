@@ -1,5 +1,6 @@
 import os
 import chardet
+import time
 from binascii import b2a_hex
 from pdfxplr import printout
 
@@ -40,6 +41,22 @@ IMAGE_METADATA = [
     'DateTimeDigitized',
     'UserComment',
 ]
+
+
+def append_catalog_metadata(metadata,old_dict):
+    # TODO: improve this piece
+    try: metadata['catalog:Producer'] = old_dict['pdf']['Producer']
+    except: pass
+    try: metadata['catalog:creator'] = old_dict['dc']['creator']
+    except: pass
+    try: metadata['catalog:CreatorTool'] = old_dict['xap']['CreatorTool']
+    except: pass
+    try: metadata['catalog:CreateDate'] = old_dict['xap']['CreateDate']
+    except: pass
+    try:    metadata['catalog:ModifyDate'] = old_dict['xap']['ModifyDate']
+    except: pass
+    return metadata
+
 
 def try_parse_date(v,encoding=None):
     try:
