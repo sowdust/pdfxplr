@@ -47,7 +47,7 @@ def append_catalog_metadata(metadata,old_dict):
     # TODO: improve this piece
     try: metadata['catalog:Producer'] = old_dict['pdf']['Producer']
     except: pass
-    try: metadata['catalog:creator'] = old_dict['dc']['creator']
+    try: metadata['catalog:creator'] = ','.join(old_dict['dc']['creator'])
     except: pass
     try: metadata['catalog:CreatorTool'] = old_dict['xap']['CreatorTool']
     except: pass

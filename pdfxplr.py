@@ -59,18 +59,10 @@ def get_metadata(doc):
             #print(metadata)  # The raw XMP metadata
             old_dict = (xmpparser.xmp_to_dict(old_meta))
 
-            # TODO: improve this piece
-            try: metadata['catalog:Producer'] = old_dict['pdf']['Producer']
-            except: pass
-            try: metadata['catalog:creator'] = old_dict['dc']['creator']
-            except: pass
-            try: metadata['catalog:CreatorTool'] = old_dict['xap']['CreatorTool']
-            except: pass
-            try: metadata['catalog:CreateDate'] = old_dict['xap']['CreateDate']
-            except: pass
-            try:    metadata['catalog:ModifyDate'] = old_dict['xap']['ModifyDate']
-            except: pass
-            
+            metadata = append_catalog_metadata(metadata,old_dict)
+
+
+
         # get metadata from "info" list of dicts
         for i in doc.info:
             for k,v in i.items():
@@ -219,10 +211,10 @@ def extract_image_metadata2(lt_image, store_path, page_number, filename):
 
 
 def get_xml(file):
-
     io = StringIO()
     dumppdf.dumppdf(io, file, [], set(), '', dumpall=True, codec=None, extractdir=None)
     return io.getvalue()
+
 
 
 def retrieve_all(xml, regex):
@@ -448,9 +440,9 @@ def main():
         files = [args.path]
     elif os.path.isdir(args.path):
         files = [os.path.join(args.path,f) for f in os.listdir(args.path) if os.path.isfile(os.path.join(args.path,f)) and f.endswith('.pdf')]
-        printout('Files to be processed:')
+        printout('Files to be processed:',False)
         for h in files:
-            printout(' %s' % os.path.join(args.path,h))
+            printout(' %s' % os.path.join(args.path,h),False)
     else:
         printout('[!] Error: provided path %s is not a valid file or folder' % args.path)
         sys.exit(-1)
@@ -461,8 +453,9 @@ def main():
 
             try:
 
-                printout('* Processing file %s...' % f, True)
-                printout('',True)
+                print(' ' * 200, end='\r')
+                print('* Processing file %s...' % f, end='\r')
+                #printout('',False)
                 parser = PDFParser(fp)
                 doc = PDFDocument(parser)
                 metadata = get_metadata(doc)
