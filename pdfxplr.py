@@ -52,7 +52,7 @@ def get_metadata(doc):
 
         # get language info from "catalog" dictionary
         if 'Lang' in doc.catalog.keys(): 
-            metadata['Lang'] = doc.catalog['Lang'].decode('utf-8')
+            metadata['Lang'] = try_parse_string(doc.catalog['Lang'],ENCODING,VERBOSE)
         # if metadata is in the catalog 
         if 'Metadata' in doc.catalog:
             old_meta = resolve1(doc.catalog['Metadata']).get_data()
@@ -72,7 +72,7 @@ def get_metadata(doc):
                     v = resolve1(v)
 
                 # let's get rid of strange encodings 
-                v = try_parse_string(v,ENCODING)
+                v = try_parse_string(v,ENCODING,VERBOSE)
 
                 # let's get the dates
                 if k in ['ModDate','CreationDate']:
@@ -151,7 +151,7 @@ def extract_image_metadata(lt_image, store_path, page_number, filename):
 
                 elif tag_name in IMAGE_METADATA:
                     printout('Found tag %s' % tag_name,False)
-                    metadata[tag_name] = try_parse_string(value, ENCODING)
+                    metadata[tag_name] = try_parse_string(value, ENCODING,VERBOSE)
 
         except Exception as ex:
             printout(ex,False)
@@ -195,7 +195,7 @@ def extract_image_metadata2(lt_image, store_path, page_number, filename):
 
                 elif tag_name in IMAGE_METADATA:
                     printout('Found tag %s' % tag_name,False)
-                    metadata[tag_name] = try_parse_string(value, ENCODING)
+                    metadata[tag_name] = try_parse_string(value, ENCODING,VERBOSE)
 
         except Exception as ex:
             printout(ex,False)
@@ -234,7 +234,7 @@ def paths_in_tooltips(xml):
         if alt_flag:
             nupaths = re.findall(regex, line)
             for p in nupaths:
-                paths.append(try_parse_string(p,ENCODING))
+                paths.append(try_parse_string(p,ENCODING,VERBOSE))
             inside_flag = False
             alt_flag = False
             continue
@@ -453,9 +453,12 @@ def main():
 
             try:
 
-                print(' ' * 200, end='\r')
-                print('* Processing file %s...' % f, end='\r')
-                #printout('',False)
+                if VERBOSE:
+                    printout('* Processing file %s...' % f)
+                else:
+                    print(' ' * 200, end='\r')
+                    print('* Processing file %s...' % f, end='\r')
+                
                 parser = PDFParser(fp)
                 doc = PDFDocument(parser)
                 metadata = get_metadata(doc)

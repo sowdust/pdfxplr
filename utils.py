@@ -72,7 +72,7 @@ def try_parse_date(v,encoding=None):
     return v
 
 
-def try_parse_string(v,encoding=None):
+def try_parse_string(v,encoding=None,verbose=True):
 
     global ENCODINGS
 
@@ -82,12 +82,12 @@ def try_parse_string(v,encoding=None):
             v = v.decode(encoding)
             return v
         except:
-            printout('[!] Error. Unable to decode string using provided encoding %s' % encoding, always=False)
+            printout('[!] Error. Unable to decode string using provided encoding %s' % encoding, always=verbose)
             pass
 
     try:
         encoding = chardet.detect(v)
-        printout('[*] Detected encoding %s'% encoding['encoding'], always=False)
+        printout('[*] Detected encoding %s'% encoding['encoding'], always=verbose)
         v = v.decode(encoding['encoding'])
         return v
     except Exception as ex:
@@ -106,7 +106,7 @@ def try_parse_string(v,encoding=None):
             v = v.decode(e)
             return v
         except:
-            printout('[!] Error. Unable to decode string using encoding %s'% e, always=False)
+            printout('[!] Error. Unable to decode string using encoding %s'% e, always=verbose)
 
     return v
 
