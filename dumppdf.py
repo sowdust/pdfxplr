@@ -166,6 +166,7 @@ def dumpoutline(outfp, fname, objids, pagenos, password='',
     fp = file(fname, 'rb')
     parser = PDFParser(fp)
     doc = PDFDocument(parser, password)
+    doc.is_extractable = True
     pages = dict( (page.pageid, pageno) for (pageno,page)
                   in enumerate(PDFPage.create_pages(doc)) )
     def resolve_dest(dest):
@@ -236,6 +237,7 @@ def extractembedded(outfp, fname, objids, pagenos, password='',
     fp = file(fname, 'rb')
     parser = PDFParser(fp)
     doc = PDFDocument(parser, password)
+    doc.is_extractable = True
     for xref in doc.xrefs:
         for objid in xref.get_objids():
             obj = doc.getobj(objid)
@@ -249,6 +251,7 @@ def dumppdf(outfp, fname, objids, pagenos, password='',
     fp = open(fname, 'rb')
     parser = PDFParser(fp)
     doc = PDFDocument(parser, password)
+    doc.is_extractable = True
     if objids:
         for objid in objids:
             obj = doc.getobj(objid)

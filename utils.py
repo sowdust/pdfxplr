@@ -5,6 +5,8 @@ from binascii import b2a_hex
 from pdfxplr import printout
 
 ENCODINGS = ['utf-8','utf-16','ascii','mac-roman']
+
+
 # http://www.exiv2.org/tags.html
 IMAGE_METADATA = [
 

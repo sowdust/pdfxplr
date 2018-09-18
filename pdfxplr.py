@@ -54,12 +54,16 @@ def get_metadata(doc):
         if 'Lang' in doc.catalog.keys(): 
             metadata['Lang'] = try_parse_string(doc.catalog['Lang'],ENCODING,VERBOSE)
         # if metadata is in the catalog 
-        if 'Metadata' in doc.catalog:
-            old_meta = resolve1(doc.catalog['Metadata']).get_data()
-            #print(metadata)  # The raw XMP metadata
-            old_dict = (xmpparser.xmp_to_dict(old_meta))
+        try:
+            if 'Metadata' in doc.catalog:
+                old_meta = resolve1(doc.catalog['Metadata']).get_data()
+                #print(metadata)  # The raw XMP metadata
+                old_dict = (xmpparser.xmp_to_dict(old_meta))
 
-            metadata = append_catalog_metadata(metadata,old_dict)
+                metadata = append_catalog_metadata(metadata,old_dict)
+        except Exception as ex:
+            printout('[!] Error while trying to get old style metadata',False)
+            printout(ex,False)
 
 
 
@@ -86,7 +90,7 @@ def get_metadata(doc):
                 metadata[k] = v
     except Exception as ex:
         printout('[!] Error while retrieving metadata')
-        printout(ex,False)
+        printout(ex,True)
 
     return metadata
 
@@ -461,6 +465,9 @@ def main():
                 
                 parser = PDFParser(fp)
                 doc = PDFDocument(parser)
+                if not doc.is_extractable:
+                    print('Document %s is not extractable!!!!!' % f)
+                doc.is_extractable = True
                 metadata = get_metadata(doc)
                 metadata['_filename'] = f
                 pdf_metadata.append(metadata)
@@ -522,6 +529,11 @@ def main():
         if img_software and args.software: print_results('* Software in images',img_software)
         if img_locations: print_results('* GPS Locations', img_locations)
         if img_serials: print_results('* Serial # in images', img_serials)
+
+
+    print(doc.is_extractable)
+    doc.is_extractable = True
+    print(doc.is_extractable)
 
 
 if __name__ == '__main__':
