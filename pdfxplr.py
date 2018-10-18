@@ -466,14 +466,16 @@ def main():
                 parser = PDFParser(fp)
                 doc = PDFDocument(parser)
                 if not doc.is_extractable:
-                    print('Document %s is not extractable!!!!!' % f)
-                doc.is_extractable = True
+                    printout('[!] Document %s is set not to be extractable. Trying anyway...' % f)
+                    doc.is_extractable = True
                 metadata = get_metadata(doc)
                 metadata['_filename'] = f
                 pdf_metadata.append(metadata)
                 if args.email or args.links or args.ips or args.paths or args.usernames or args.software:
                     xml = get_xml(f)
+                    #print(xml)
                     decoded = html.unescape(xml)
+                    #print(decoded)
                 if args.email:
                     emails |= set(retrieve_all(decoded,rex.RE_EMAIL))
                 if args.links:
@@ -495,7 +497,7 @@ def main():
                     img_locations |= set(img_loc)
                     img_serials |= set(img_ser)
             except Exception as ex: 
-                printout('[!] Error while processing file %s' % f)
+                printout('[!] Error while processing file %s: %s' % (f,ex))
                 printout()
                 printout(ex,False)
 
@@ -529,12 +531,6 @@ def main():
         if img_software and args.software: print_results('* Software in images',img_software)
         if img_locations: print_results('* GPS Locations', img_locations)
         if img_serials: print_results('* Serial # in images', img_serials)
-
-
-    print(doc.is_extractable)
-    doc.is_extractable = True
-    print(doc.is_extractable)
-
 
 if __name__ == '__main__':
     main()
