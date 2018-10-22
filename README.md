@@ -5,7 +5,7 @@ Extract hidden data from pdf files.
 ### Summary
 
 This script attempts to extract potentially interesting data from pdf files, that might be useful in penetration tests, forensics analysis or OSINT investigations.
-Besides classic metadata, it searches for elements usually overlooked, including metadata inside embedded images.
+Besides classic metadata, it searches for elements usually overlooked, including metadata inside embedded images, paths on the operating system, usernames, software components.
 
 ### Prerequisites
 
