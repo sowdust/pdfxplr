@@ -30,36 +30,36 @@ pdfxplr.py v. 0.1 - Find hidden data in pdf
 by sowdust
 
 usage: pdfxplr.py [-h] [-m] [-a] [-e] [-l] [-i] [-u] [-s] [-p] [-x] [-v]
-                  [-o outfile] [--encoding encoding] [--store-images path]
+                  [--encoding encoding] [--store-images path]
                   PATH
 
 extract interesting data from pdf files.
 
 positional arguments:
-  PATH                  path to a file or folder
+  PATH                 path to a file or folder
 
 optional arguments:
-  -h, --help            show this help message and exit
-  -m, --metadata        show metadata, off by default
-  -a, --all             show all, add -m to show also metadata
-  -e, --email           list all email addresses
-  -l, --links           list all URLs
-  -i, --ips             list all IP addresses
-  -u, --usernames       list all usernames
-  -s, --software        list all software components identified
-  -p, --paths           list all content found in image alt fields (ie. system
-                        paths)
-  -x, --images          extract info from images, use -m to show metadata
-  -v, --verbose         verbose mode
-  -o outfile, --outfile outfile
-                        output file path
-  --encoding encoding   input document encoding
-  --store-images path   path to store extracted images (optional)
+  -h, --help           show this help message and exit
+  -m, --metadata       show metadata, off by default
+  -a, --all            show all, add -m to show also metadata
+  -e, --email          list all email addresses
+  -l, --links          list all URLs
+  -i, --ips            list all IP addresses
+  -u, --usernames      list all usernames
+  -s, --software       list all software components identified
+  -p, --paths          list all content found in image alt fields (ie. system
+                       paths)
+  -x, --images         extract info from images, use -m to show metadata
+  -v, --verbose        verbose mode
+  --encoding encoding  input document encoding
+  --store-images path  path to store extracted images (optional)
 ```
+
+It is possible to test the script using the sample pdf file in the "sample" folder. 
 
 ### Acknowledgments
 
-Thanks to Gianluca Baldi for the help with the first version of this project and to Maurizio Agazzini for having suggested using the images' alt text in pdf files.
+Thanks to Gianluca Baldi for the help with the old version of this project and to Maurizio Agazzini for having suggested using the images' alt text in pdf files.
 
 The XMP metadata parser is by Matt Swain (http://blog.matt-swain.com/post/25650072381/a-lightweight-xmp-parser-for-extracting-pdf).
 
