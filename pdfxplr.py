@@ -397,8 +397,7 @@ def parse_args():
 
     args.summary = args.email or args.links or args.ips or args.paths or args.usernames or args.software
 
-    if args.outfile:
-        OUTFILE = args.outfile
+    # if args.outfile:        OUTFILE = args.outfile
 
     VERBOSE = args.verbose
 
