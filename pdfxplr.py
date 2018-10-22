@@ -375,7 +375,7 @@ def parse_args():
     parser.add_argument('-p', '--paths', action='store_true', help='list all content found in image alt fields (ie. system paths)')
     parser.add_argument('-x', '--images', action='store_true', help='extract info from images, use -m to show metadata')
     parser.add_argument('-v', '--verbose', action='store_true', help='verbose mode')
-    parser.add_argument('-o','--outfile', metavar='outfile', type=str, help='output file path')
+    #parser.add_argument('-o','--outfile', metavar='outfile', type=str, help='output file path')
     parser.add_argument('--encoding', metavar='encoding', type=str, help='input document encoding')
     parser.add_argument('--store-images', metavar='path', type=str, help='path to store extracted images (optional)')
 
