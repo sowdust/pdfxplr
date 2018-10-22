@@ -26,7 +26,10 @@ The list of exif metadata that will be extracted is set in utils.py, as well as 
 ### Usage
 
 ```
-usage: pdfxplr.py [-h] [-m] [-a] [-e] [-l] [-i] [-p] [-u] [-s] [-x] [-v]
+pdfxplr.py v. 0.1 - Find hidden data in pdf
+by sowdust
+
+usage: pdfxplr.py [-h] [-m] [-a] [-e] [-l] [-i] [-u] [-s] [-p] [-x] [-v]
                   [-o outfile] [--encoding encoding] [--store-images path]
                   PATH
 
@@ -38,13 +41,14 @@ positional arguments:
 optional arguments:
   -h, --help            show this help message and exit
   -m, --metadata        show metadata, off by default
-  -a, --all             show all, use -m to show metadata
+  -a, --all             show all, add -m to show also metadata
   -e, --email           list all email addresses
   -l, --links           list all URLs
   -i, --ips             list all IP addresses
-  -p, --paths           list all paths found in image alt fields
   -u, --usernames       list all usernames
   -s, --software        list all software components identified
+  -p, --paths           list all content found in image alt fields (ie. system
+                        paths)
   -x, --images          extract info from images, use -m to show metadata
   -v, --verbose         verbose mode
   -o outfile, --outfile outfile

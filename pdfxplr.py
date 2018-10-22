@@ -35,9 +35,6 @@ by sowdust
 """.format(VERSION)
 
 # TODO
-# - fix encoding errors
-# - multithreaded ? 
-# - allow a list of files as input
 # - add samples
 # - understand why some gps are stripped and some are not (ie only gpsVersionID is there) 
 # - read GPSVersionID as bytes
@@ -369,13 +366,13 @@ def parse_args():
     parser = argparse.ArgumentParser(description='extract interesting data from pdf files.')
     parser.add_argument('path', metavar='PATH', type=str, help='path to a file or folder')
     parser.add_argument('-m', '--metadata', action='store_true', help='show metadata, off by default')
-    parser.add_argument('-a', '--all', action='store_true', help='show all, use -m to show metadata')
+    parser.add_argument('-a', '--all', action='store_true', help='show all, add -m to show also metadata')
     parser.add_argument('-e', '--email', action='store_true', help='list all email addresses')
     parser.add_argument('-l', '--links', action='store_true', help='list all URLs')
     parser.add_argument('-i', '--ips', action='store_true', help='list all IP addresses')
-    parser.add_argument('-p', '--paths', action='store_true', help='list all paths found in image alt fields')
     parser.add_argument('-u', '--usernames', action='store_true', help='list all usernames')
     parser.add_argument('-s', '--software', action='store_true', help='list all software components identified')
+    parser.add_argument('-p', '--paths', action='store_true', help='list all content found in image alt fields (ie. system paths)')
     parser.add_argument('-x', '--images', action='store_true', help='extract info from images, use -m to show metadata')
     parser.add_argument('-v', '--verbose', action='store_true', help='verbose mode')
     parser.add_argument('-o','--outfile', metavar='outfile', type=str, help='output file path')
