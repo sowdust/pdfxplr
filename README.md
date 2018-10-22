@@ -15,6 +15,7 @@ You will need Python 3 with the following libraries:
 * python-dateutil
 * Pillow
 
+To install them, after cloning the repository, simply run:
 ```
 pip install -r requirements.txt
 ```
