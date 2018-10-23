@@ -17,7 +17,7 @@ You will need Python 3 with the following libraries:
 
 To install them, after cloning the repository, simply run:
 ```
-pip install -r requirements.txt
+pip3 install -r requirements.txt
 ```
 
 ### Configuration
