@@ -4,7 +4,7 @@ import time
 from binascii import b2a_hex
 from pdfxplr import printout
 
-ENCODINGS = ['utf-8','utf-16','ascii','mac-roman']
+ENCODINGS = ['utf-8','utf-16','ascii','mac-roman','cp1256']
 
 
 # http://www.exiv2.org/tags.html
@@ -84,21 +84,23 @@ def try_parse_string(v,encoding=None,verbose=True):
             v = v.decode(encoding)
             return v
         except:
-            printout('[!] Error. Unable to decode string using provided encoding %s' % encoding, always=verbose)
+            #printout('[!] Error. Unable to decode string using provided encoding %s' % encoding, False)
             pass
 
     try:
         encoding = chardet.detect(v)
-        printout('[*] Detected encoding %s'% encoding['encoding'], always=verbose)
+        #printout('[*] Detected encoding %s'% encoding['encoding'], False)
         v = v.decode(encoding['encoding'])
         return v
     except Exception as ex:
         try:
             v = str(v)
+            return v
         except Exception as exx:
-            printout('[!] Error while decoding string')
-            printout(ex,False)
-            printout(exx,False)
+            #printout('[!] Error while decoding string',False)
+            #printout(ex,False)
+            #printout(exx,False)
+            pass
 
     # we can try to detect encoding from the xml 
 

@@ -223,6 +223,32 @@ def retrieve_all(xml, regex):
     return re.findall(regex, xml)
 
 
+def urls_in_tags(xml):
+    regex = re.compile(r'<value><string size="[0-9]+">(.*?[\\|/|.].*?)</string></value>')
+    paths = []
+    alt_flag = False
+    inside_flag = False
+
+    for line in xml:
+
+        if alt_flag:
+            nupaths = re.findall(regex, line)
+            for p in nupaths:
+                paths.append(try_parse_string(p,ENCODING,VERBOSE))
+            inside_flag = False
+            alt_flag = False
+            continue
+
+        if '<value><literal>' in line:
+            inside_flag = True
+            continue
+
+        if inside_flag and '<key>URI</key>' in line:
+            alt_flag = True
+            continue
+
+    return paths
+
 def paths_in_tooltips(xml):
 
     regex = re.compile(r'<value><string size="[0-9]+">(.*?[\\|/|.].*?)</string></value>')
@@ -469,13 +495,12 @@ def main():
                 pdf_metadata.append(metadata)
                 if args.email or args.links or args.ips or args.paths or args.usernames or args.software:
                     xml = get_xml(f)
-                    #print(xml)
                     decoded = html.unescape(xml)
-                    #print(decoded)
                 if args.email:
                     emails |= set(retrieve_all(decoded,rex.RE_EMAIL))
                 if args.links:
                     links |= set(retrieve_all(decoded,rex.RE_WWW))
+                    links |= set(urls_in_tags(decoded.splitlines()))
                 if args.ips:
                     ips |= set(retrieve_all(decoded,rex.RE_IP))
                 if args.extract_paths:
